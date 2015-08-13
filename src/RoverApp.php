@@ -11,8 +11,7 @@ use Rover\Input\RoverPosition;
 
 class RoverApp
 {
-
-	private $_input;
+	private $_input = array();
 
 	/* @var RoverDispatcher */
 	private $_dispatcher;
@@ -21,27 +20,32 @@ class RoverApp
 
 	private $_commandSequences = array();
 
+	private $_errors = array();
 
-	public function __construct() {
-		$this->_dispatcher  = new RoverDispatcher();
-	}
-
-	public static function getPosition(RoverPosition $position) {
+	public static function getPosition(RoverPosition $position) { //todo delete of make private not static
 		return sprintf('%d %d %s', $position->getCoordinates()->getX(), $position->getCoordinates()->getY(), $position->getDirection());
 	}
 
-	public function processBatchCommand($str) {
+	public function __construct($input) {
+		$this->_dispatcher  = new RoverDispatcher();
 
-		if (!is_string($str)) {
-			throw new RoverException("Input must be a string");
+		if (!is_string($input)) {
+			throw new RoverException('Input must be a string');
 		}
 
-		$this->_input = explode("\n", $str);
+		$this->_input = explode("\n", $input);
 
 		if (count($this->_input) < 3) {
-			throw new RoverException("Error in input string. Add more commands");
+			throw new RoverException("Error in input string. See input format for details.");
 		}
 
+		$configsHasEmptyLines = count(array_filter($this->_input, function($val) { $val = trim($val); return empty($val);})) > 0;
+		if ($configsHasEmptyLines) {
+			throw new RoverException('Find empty lines in config. See input format for details.');
+		}
+	}
+
+	public function processBatchCommand() {
 		$this->_normalizeInput();
 		$this->_createInputObjects();
 		$this->_runDispatcher();

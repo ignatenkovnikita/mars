@@ -42,6 +42,18 @@ class InputTest extends PHPUnit_Framework_TestCase{
 	}
 
 
+	public function testRoverInvalidDirection() {
+		$this->setExpectedException('Rover\Exceptions\RoverException');
+		$c = new \Rover\Input\RoverPosition(new \Rover\Input\Coordinate(1,2),'Z');
+	}
+
+
+	public function testInvalidPlato() {
+		$this->setExpectedException('Rover\Exceptions\PlatoException');
+		new \Rover\Input\Plato(new \Rover\Input\Coordinate(0, 10));
+	}
+
+
 
 
 

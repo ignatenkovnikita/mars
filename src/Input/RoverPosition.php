@@ -3,6 +3,8 @@
 namespace Rover\Input;
 
 
+use Rover\Exceptions\RoverException;
+
 class RoverPosition  {
 
 	const DIRECTION_NORTH = 'N';
@@ -23,7 +25,7 @@ class RoverPosition  {
 		$this->_direction = strtoupper(trim($direction));
 
 		if (!$this->_isValidDirection()) {
-			throw new \Exception('asdasd');
+			throw new RoverException('Not valid rover direction given. Direction is: '.$direction);
 		}
 	}
 
