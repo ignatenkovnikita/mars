@@ -3,8 +3,8 @@
 namespace Rover\Input;
 
 class Plato {
-	public function __construct(Coordinate $topCoordinate) {
-		$this->_topCoordinate = $topCoordinate;
+	public function __construct($x, $y) {
+		$this->_topCoordinate = new Coordinate($x, $y);
 	}
 
 	public function getTopCoordinate() {
