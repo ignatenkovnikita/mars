@@ -12,13 +12,14 @@ class RoverDispatcher {
 
 	private $_rovers = array();
 
+	private $_plato;
+
+
 	/**
-	 * @param $x
-	 * @param $y
-	 * @internal param Plato $platoCoordinates
+	 * @param Plato $plato
 	 */
-	public function setPlatoCoordinates($x, $y) { // todo наподумать.. может и координатой передавать
-		$this->_platoCoords = new Input\Coordinate($x, $y);
+	public function setPlato(Plato $plato) {
+		$this->_plato = $plato;
 	}
 
 	/**
@@ -26,7 +27,7 @@ class RoverDispatcher {
 	 * @param CommandSequence $commands
 	 */
 	public function addRover(RoverPosition $position, CommandSequence $commands) {
-		$this->_rovers = new Rover($position, $commands);
+		$this->_rovers[] = new Rover($position, $commands, $this->_plato);
 	}
 
 	public function start() {
@@ -34,6 +35,10 @@ class RoverDispatcher {
 			/* @var Rover $rover  */
 			$rover->walk();
 		}
+	}
+
+	public function getRovers() {
+		return $this->_rovers;
 	}
 
 

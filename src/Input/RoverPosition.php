@@ -3,29 +3,36 @@
 namespace Rover\Input;
 
 
-class RoverPosition extends Coordinate {
+class RoverPosition  {
 
 	const DIRECTION_NORTH = 'N';
 	const DIRECTION_SOUTH = 'S';
 	const DIRECTION_WEST = 'W';
 	const DIRECTION_EAST = 'E';
 
-	/* @var string */
-	protected $_direction;
 
-	public function __construct($x, $y, $direction) {
+	/* @var string */
+	private $_direction;
+
+	/* @var Coordinate */
+	private $_coordinates;
+
+	public function __construct(Coordinate $coordinates, $direction) {
+		$this->_coordinates = $coordinates;
+
 		$this->_direction = strtoupper(trim($direction));
 
 		if (!$this->_isValidDirection()) {
 			throw new \Exception('asdasd');
 		}
-
-		parent::__construct($x, $y);
 	}
-
 
 	public function getDirection() {
 		return $this->_direction;
+	}
+
+	public function getCoordinates() {
+		return $this->_coordinates;
 	}
 
 	private function _allDirections($index = null) {
@@ -77,13 +84,13 @@ class RoverPosition extends Coordinate {
 
 			} else if ($command == CommandSequence::MOVE_FORWARD) {
 				if ($this->_direction == self::DIRECTION_EAST) {
-					$this->_x++;
+					$this->_coordinates->moveAxis('x', 1);
 				} else if ($this->_direction == self::DIRECTION_WEST) {
-					$this->_x--;
+					$this->_coordinates->moveAxis('x', -1);
 				} else if ($this->_direction == self::DIRECTION_SOUTH) {
-					$this->_y--;
+					$this->_coordinates->moveAxis('y', -1);
 				} else if ($this->_direction == self::DIRECTION_NORTH) {
-					$this->_y++;
+					$this->_coordinates->moveAxis('y', 1);
 				}
 			}
 		}

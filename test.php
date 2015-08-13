@@ -2,9 +2,15 @@
 
 require_once('vendor/autoload.php');
 
-use Rover\Input;
 use Rover\RoverApp;
 
 $app = new RoverApp();
-$app->processBatchCommand($str);
-$app->batchResult();
+
+$str =
+	"5 5
+1 2 N
+LMLMLMLMM
+3 3 E
+MMRMMRMRRM";
+
+echo $app->processBatchCommand($str);

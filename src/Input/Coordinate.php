@@ -27,6 +27,13 @@ class Coordinate {
 		return $this->_y;
 	}
 
+
+	public function moveAxis($axis, $number) {
+		$property = '_'.$axis;
+		$this->{$property} = $this->{$property} + $number;
+	}
+
+
 	private function _isValid($x, $y) {
 		return ( ($this->_isNumber($x) && $this->_isNumber($y)) && ($x >=0 && $y >= 0));
 	}
