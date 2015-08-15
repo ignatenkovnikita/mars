@@ -1,5 +1,5 @@
 # Mars
-Sample php program
+PHP Challenge
 
 ## Installation
 ```sh
@@ -7,6 +7,14 @@ git clone https://github.com/petun/mars.git
 cd mars
 composer update
 ```
+After this, run **index.php** from you web browser.
+
+Test library from command line by command: 
+```sh
+cd mars
+php console.php
+```
+
 
 
 ## Demo

@@ -8,6 +8,11 @@ use Rover\Input\Plato;
 use Rover\Input\CommandSequence;
 use Rover\Input\RoverPosition;
 
+/**
+ * Class RoverDispatcher
+ * Command center for rovers
+ * @package Rover
+ */
 class RoverDispatcher {
 
 	private $_rovers = array();

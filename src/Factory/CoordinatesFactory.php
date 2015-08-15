@@ -12,6 +12,11 @@ namespace Rover\Factory;
 use Rover\Exceptions\RoverFactoryException;
 use Rover\Input\Coordinate;
 
+/**
+ * Class CoordinatesFactory
+ * Produce Coordinate object from string
+ * @package Rover\Factory
+ */
 class CoordinatesFactory {
 
 	public static function create($str) {

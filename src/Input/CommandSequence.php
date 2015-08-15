@@ -5,6 +5,11 @@ namespace Rover\Input;
 
 use Rover\Exceptions\InvalidCommandSequenceException;
 
+/**
+ * Class CommandSequence
+ * Represents command sequence. eg LLMMLLL
+ * @package Rover\Input
+ */
 class CommandSequence {
 
 	const TURN_LEFT = 'L';
@@ -24,6 +29,10 @@ class CommandSequence {
 		}
 	}
 
+	/**
+	 * Return one single command
+	 * @return array
+	 */
 	public function getSteps() {
 		return $this->_steps;
 	}

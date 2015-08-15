@@ -13,6 +13,11 @@ use Rover\Exceptions\RoverFactoryException;
 use Rover\Input\Coordinate;
 use Rover\Input\RoverPosition;
 
+/**
+ * Class RoverPositionFactory
+ * Produce RoverPosition object from string
+ * @package Rover\Factory
+ */
 class RoverPositionFactory {
 
 	public static function create($str) {

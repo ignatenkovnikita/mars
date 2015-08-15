@@ -5,6 +5,11 @@ namespace Rover\Input;
 
 use Rover\Exceptions\RoverException;
 
+/**
+ * Class RoverPosition
+ * Represents position and direction for the rover.
+ * @package Rover\Input
+ */
 class RoverPosition
 {
 
@@ -30,15 +35,17 @@ class RoverPosition
 		}
 	}
 
-	public function getDirection() {
-		return $this->_direction;
-	}
-
-	public function getCoordinates() {
-		return $this->_coordinates;
+	private function _isValidDirection($direction = null) {
+		return in_array(!empty($direction) ? $direction : $this->_direction, $this->_getDirection());
 	}
 
 
+	/**
+	 * Method return direction array or individual direction by $index
+	 * @param null|int $index
+	 *
+	 * @return array|string
+	 */
 	private function _getDirection($index = null) {
 		$allDirections = array(
 			0 => self::DIRECTION_NORTH,
@@ -54,29 +61,11 @@ class RoverPosition
 		}
 	}
 
-	private function _getCurrentDirectionIndex() {
-		return array_search($this->_direction, $this->_getDirection());
-	}
-
-	private function _isValidDirection($direction = null) {
-		return in_array(!empty($direction) ? $direction : $this->_direction, $this->_getDirection());
-	}
-
-	public function changePosition(RoverPosition $newPosition) {
-		$this->_coordinates = $newPosition->_coordinates;
-		$this->_direction = $newPosition->_direction;
-	}
-
-	public function changeDirection($direction) {
-		if ($this->_isValidDirection($direction)) {
-			$this->_direction = $direction;
-		}
-	}
-
 	/**
+	 * Eval command against current position
 	 * @param $command
 	 *
-	 * @return RoverPosition
+	 * @return RoverPosition new Position
 	 */
 	public function evalCommand($command) {
 		$newPosition = new RoverPosition(
@@ -125,5 +114,31 @@ class RoverPosition
 
 		return $newPosition;
 
+	}
+
+
+	private function _getCurrentDirectionIndex() {
+		return array_search($this->_direction, $this->_getDirection());
+	}
+
+
+	public function getDirection() {
+		return $this->_direction;
+	}
+
+	public function getCoordinates() {
+		return $this->_coordinates;
+	}
+
+
+	public function changePosition(RoverPosition $newPosition) {
+		$this->_coordinates = $newPosition->_coordinates;
+		$this->_direction = $newPosition->_direction;
+	}
+
+	public function changeDirection($direction) {
+		if ($this->_isValidDirection($direction)) {
+			$this->_direction = $direction;
+		}
 	}
 }

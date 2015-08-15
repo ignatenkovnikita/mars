@@ -14,11 +14,13 @@ use Rover\Input\RoverPosition;
  * Class RoverApp
  *
  * Top layout of the application. Get input - generated output
+ * To work with rovers uses RoverDispatcher object, which represents central commands center for robots.
  *
  * @package Rover
  */
 class RoverApp
 {
+	/* @var string */
 	private $_inputStr;
 
 	private $_inputLines = array();
@@ -31,8 +33,6 @@ class RoverApp
 	private $_commandSequences = array();
 
 	public function __construct($input) {
-		$this->_dispatcher  = new RoverDispatcher();
-
 		$this->_inputStr = $input;
 
 		if (!is_string($this->_inputStr)) {
@@ -44,10 +44,14 @@ class RoverApp
 		$this->_checkInputFormat($input);
 	}
 
+	/**
+	 * Prepare config lines for first use. Trim last and first spaces and trim every line
+	 */
 	private function _generateInputLines() {
 		$this->_inputLines = explode("\n", trim($this->_inputStr));
 		$this->_inputLines = array_map('trim', $this->_inputLines);
 	}
+
 
 	public function _checkInputFormat() {
 		if (count($this->_inputLines) < 3) {
@@ -66,15 +70,21 @@ class RoverApp
 	}
 
 
-
+	/**
+	 * Method create input object (plato area, command sequences, and rover positions) and then
+	 * ask RoverDispather to run commands on rovers). Finallty - return
+	 * @return string
+	 */
 	public function processBatchCommand() {
 		$this->_createInputObjects();
 		$this->_runDispatcher();
-		return $this->_getResultData();
+		return $this->_getRoverPositions();
 	}
 
 
 	private function _createInputObjects() {
+		$this->_dispatcher  = new RoverDispatcher();
+
 		$platoStr = array_shift($this->_inputLines);
 
 		$platoTopCoordinates = CoordinatesFactory::create($platoStr);
@@ -97,7 +107,7 @@ class RoverApp
 		$this->_dispatcher->start();
 	}
 
-	private function _getResultData() {
+	private function _getRoverPositions() {
 		$result = array();
 		foreach ($this->_dispatcher->getRovers() as $rover) {
 			/* @var $rover Rover */

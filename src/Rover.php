@@ -8,6 +8,13 @@ use Rover\Input\Coordinate;
 use Rover\Input\Plato;
 use Rover\Input\RoverPosition;
 
+/**
+ * Class Rover
+ * Rover Object representation. Can process sequence of commands and change own
+ * Need to know own position, plato area and command sequence to processposition.
+ *
+ * @package Rover
+ */
 class Rover {
 
 	/* @var RoverPosition */
@@ -23,18 +30,14 @@ class Rover {
 		$this->_commands = $commands;
 	}
 
-	public function getPosition() {
-		return $this->_position;
-	}
-
 	public function walk() {
-		foreach ($this->_commands->getSteps() as $step) {
+		foreach ($this->_commands->getSteps() as $command) {
 
-			$newPosition = $this->_position->evalCommand($step);
+			$newPosition = $this->_position->evalCommand($command);
 
 			if ($newPosition == false || !$this->_isCoordinatesValid($newPosition->getCoordinates())) {
-				throw new RoverException("Way is out from plato area. Last command is: ". $step .
-					' Position X='.$this->_position->getCoordinates()->getX().
+				throw new RoverException("Way is out from plato area. Last command is: ". $command .
+					' Last Position X='.$this->_position->getCoordinates()->getX().
 					', Y='. $this->_position->getCoordinates()->getY());
 			} else {
 				$this->_position->changePosition($newPosition);
@@ -42,7 +45,11 @@ class Rover {
 		}
 	}
 
-	public function _isCoordinatesValid(Coordinate $c) {
+	public function getPosition() {
+		return $this->_position;
+	}
+
+	private function _isCoordinatesValid(Coordinate $c) {
 		$isXValid = $c->getX() >= $this->_plato->getBottomCoordinate()->getX()
 		&& $c->getX() <= $this->_plato->getTopCoordinate()->getX();
 
