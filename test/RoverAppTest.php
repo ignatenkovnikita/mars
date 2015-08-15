@@ -29,6 +29,11 @@ MMRMMRMRRM";
 		new \Rover\RoverApp('');
 	}
 
+	public function testEmptyLinesConfig() {
+		$this->setExpectedException('Rover\Exceptions\RoverException');
+		new \Rover\RoverApp("5 5\n1 2 N\nLLRR\n1 2 N\nLL\n\n\n\n1 2 N\nMMM");
+	}
+
 	public function testArrayConfig() {
 		$this->setExpectedException('Rover\Exceptions\RoverException');
 		new \Rover\RoverApp(array(1,2,3));

@@ -30,7 +30,7 @@ MMRMMRMRRM
 require_once('vendor/autoload.php');
 use Rover\RoverApp;
 
-if ($_POST['command']) {
+if (!empty($_POST['command'])) {
 
 	try {
 		$app = new RoverApp($_POST['command']);

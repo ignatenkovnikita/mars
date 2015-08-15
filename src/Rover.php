@@ -32,7 +32,7 @@ class Rover {
 
 			$newPosition = $this->_position->evalCommand($step);
 
-			if (!$this->_isCoordinatesValid($newPosition->getCoordinates())) {
+			if ($newPosition == false || !$this->_isCoordinatesValid($newPosition->getCoordinates())) {
 				throw new RoverException("Way is out from plato area. Last command is: ". $step .
 					' Position X='.$this->_position->getCoordinates()->getX().
 					', Y='. $this->_position->getCoordinates()->getY());

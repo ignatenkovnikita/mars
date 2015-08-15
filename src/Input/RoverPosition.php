@@ -5,7 +5,8 @@ namespace Rover\Input;
 
 use Rover\Exceptions\RoverException;
 
-class RoverPosition  {
+class RoverPosition
+{
 
 	const DIRECTION_NORTH = 'N';
 	const DIRECTION_SOUTH = 'S';
@@ -25,7 +26,7 @@ class RoverPosition  {
 		$this->_direction = strtoupper(trim($direction));
 
 		if (!$this->_isValidDirection()) {
-			throw new RoverException('Not valid rover direction given. Direction is: '.$direction);
+			throw new RoverException('Not valid rover direction given. Direction is: ' . $direction);
 		}
 	}
 
@@ -57,8 +58,8 @@ class RoverPosition  {
 		return array_search($this->_direction, $this->_getDirection());
 	}
 
-	private function _isValidDirection() {
-		return in_array($this->_direction, $this->_getDirection());
+	private function _isValidDirection($direction = null) {
+		return in_array(!empty($direction) ? $direction : $this->_direction, $this->_getDirection());
 	}
 
 	public function changePosition(RoverPosition $newPosition) {
@@ -67,54 +68,62 @@ class RoverPosition  {
 	}
 
 	public function changeDirection($direction) {
-		$this->_direction = $direction;
+		if ($this->_isValidDirection($direction)) {
+			$this->_direction = $direction;
+		}
 	}
 
 	/**
 	 * @param $command
 	 *
-	 * @return null|RoverPosition
+	 * @return RoverPosition
 	 */
 	public function evalCommand($command) {
-		if ($this->_isValidDirection($command)) {
+		$newPosition = new RoverPosition(
+			new Coordinate($this->_coordinates->getX(), $this->_coordinates->getY()), $this->getDirection()
+		);
 
-			$newPosition = new RoverPosition(new Coordinate($this->_coordinates->getX(), $this->_coordinates->getY()), $this->getDirection());
+		if ($command == CommandSequence::TURN_LEFT || $command == CommandSequence::TURN_RIGHT) {
 
-			if ($command == CommandSequence::TURN_LEFT || $command == CommandSequence::TURN_RIGHT) {
+			$nextDirectionIndex = $this->_getCurrentDirectionIndex();
 
-				$nextDirectionIndex = $this->_getCurrentDirectionIndex();
-
-				if ($command == CommandSequence::TURN_RIGHT) {
-					if ($nextDirectionIndex >= 3) {
-						$nextDirectionIndex = 0;
-					} else {
-						$nextDirectionIndex++;
-					}
+			if ($command == CommandSequence::TURN_RIGHT) {
+				if ($nextDirectionIndex >= 3) {
+					$nextDirectionIndex = 0;
 				} else {
-					if ($nextDirectionIndex <= 0) {
-						$nextDirectionIndex = 3;
-					} else {
-						$nextDirectionIndex--;
-					}
+					$nextDirectionIndex++;
 				}
-
-				$newPosition->changeDirection($this->_getDirection($nextDirectionIndex));
-
-			} else if ($command == CommandSequence::MOVE_FORWARD) {
-				if ($newPosition->getDirection() == self::DIRECTION_EAST) {
-					$newPosition->getCoordinates()->moveAxis('x', 1);
-				} else if ($newPosition->getDirection() == self::DIRECTION_WEST) {
-					$newPosition->getCoordinates()->moveAxis('x', -1);
-				} else if ($newPosition->getDirection() == self::DIRECTION_SOUTH) {
-					$newPosition->getCoordinates()->moveAxis('y', -1);
-				} else if ($newPosition->getDirection() == self::DIRECTION_NORTH) {
-					$newPosition->getCoordinates()->moveAxis('y', 1);
+			} else {
+				if ($nextDirectionIndex <= 0) {
+					$nextDirectionIndex = 3;
+				} else {
+					$nextDirectionIndex--;
 				}
 			}
 
-			return $newPosition;
+			$newPosition->changeDirection($this->_getDirection($nextDirectionIndex));
+
+		} else {
+			if ($command == CommandSequence::MOVE_FORWARD) {
+				if ($newPosition->getDirection() == self::DIRECTION_EAST) {
+					$newPosition->getCoordinates()->moveAxis('x', 1);
+				} else {
+					if ($newPosition->getDirection() == self::DIRECTION_WEST) {
+						$newPosition->getCoordinates()->moveAxis('x', -1);
+					} else {
+						if ($newPosition->getDirection() == self::DIRECTION_SOUTH) {
+							$newPosition->getCoordinates()->moveAxis('y', -1);
+						} else {
+							if ($newPosition->getDirection() == self::DIRECTION_NORTH) {
+								$newPosition->getCoordinates()->moveAxis('y', 1);
+							}
+						}
+					}
+				}
+			}
 		}
 
-		return null;
+		return $newPosition;
+
 	}
 }
