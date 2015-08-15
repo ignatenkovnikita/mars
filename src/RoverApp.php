@@ -9,9 +9,19 @@ use Rover\Input\CommandSequence;
 use Rover\Input\Plato;
 use Rover\Input\RoverPosition;
 
+
+/**
+ * Class RoverApp
+ *
+ * Top layout of the application. Get input - generated output
+ *
+ * @package Rover
+ */
 class RoverApp
 {
-	private $_input = array();
+	private $_inputStr;
+
+	private $_inputLines = array();
 
 	/* @var RoverDispatcher */
 	private $_dispatcher;
@@ -20,72 +30,70 @@ class RoverApp
 
 	private $_commandSequences = array();
 
-	private $_errors = array();
-
-	public static function getPosition(RoverPosition $position) { //todo delete of make private not static
-		return sprintf('%d %d %s', $position->getCoordinates()->getX(), $position->getCoordinates()->getY(), $position->getDirection());
-	}
-
 	public function __construct($input) {
 		$this->_dispatcher  = new RoverDispatcher();
 
-		if (!is_string($input)) {
-			throw new RoverException('Input must be a string');
+		$this->_inputStr = $input;
+
+		if (!is_string($this->_inputStr)) {
+			throw new RoverException("Input must be a string.");
 		}
 
-		$this->_input = explode("\n", $input);
+		$this->_generateInputLines();
 
-		if (count($this->_input) < 3) {
+		$this->_checkInputFormat($input);
+	}
+
+	private function _generateInputLines() {
+		$this->_inputLines = explode("\n", trim($this->_inputStr));
+		$this->_inputLines = array_map('trim', $this->_inputLines);
+	}
+
+	public function _checkInputFormat() {
+		if (count($this->_inputLines) < 3) {
 			throw new RoverException("Error in input string. See input format for details.");
 		}
 
-		$configsHasEmptyLines = count(array_filter($this->_input, function($val) { $val = trim($val); return empty($val);})) > 0;
+		$configsHasEmptyLines = count(array_filter($this->_inputLines, function($val) { $val = trim($val); return empty($val);})) > 0;
 		if ($configsHasEmptyLines) {
 			throw new RoverException('Find empty lines in config. See input format for details.');
 		}
+
+		$isEvenLines = count($this->_inputLines) % 2 == 0;
+		if ($isEvenLines) {
+			throw new RoverException("Invalid configuration for rovers. Missing command or coordinates line");
+		}
 	}
 
+
+
 	public function processBatchCommand() {
-		$this->_normalizeInput();
 		$this->_createInputObjects();
 		$this->_runDispatcher();
 		return $this->_getResultData();
 	}
 
-	private function _normalizeInput() {
-		$this->_input = array_map(
-			function ($input) {
-				return trim($input);
-			}, $this->_input
-		);
-	}
 
 	private function _createInputObjects() {
-		$platoStr = array_shift($this->_input);
+		$platoStr = array_shift($this->_inputLines);
 
 		$platoTopCoordinates = CoordinatesFactory::create($platoStr);
 		$this->_dispatcher->setPlato(new Plato($platoTopCoordinates));
 
-		$isEvenLines = count($this->_input) % 2 == 0;
-
-		if (!$isEvenLines) {
-			throw new RoverException("Invalid configuration for rovers. Missing command or coordinates line");
+		for ($i = 0; $i < count($this->_inputLines); $i++) {
+			if ($i % 2) {
+				$this->_commandSequences[] = new CommandSequence($this->_inputLines[$i]);
+			} else {
+				$this->_roverPositions[] = RoverPositionFactory::create($this->_inputLines[$i]);
+			}
 		}
 
-		for ($i = 0; $i < count($this->_input); $i++) {
-			if ($i % 2) {
-				$this->_commandSequences[] = new CommandSequence($this->_input[$i]);
-			} else {
-				$this->_roverPositions[] = RoverPositionFactory::create($this->_input[$i]);
-			}
+		foreach ($this->_commandSequences as $index => $commandSequence) {
+			$this->_dispatcher->addRover($this->_roverPositions[$index], $commandSequence);
 		}
 	}
 
 	private function _runDispatcher() {
-		foreach ($this->_commandSequences as $index => $commandSequence) {
-			$this->_dispatcher->addRover($this->_roverPositions[$index], $commandSequence);
-		}
-
 		$this->_dispatcher->start();
 	}
 
@@ -93,10 +101,14 @@ class RoverApp
 		$result = array();
 		foreach ($this->_dispatcher->getRovers() as $rover) {
 			/* @var $rover Rover */
-			$result[] = self::getPosition($rover->getPosition());
+			$result[] = $this->_formatPosition($rover->getPosition());
 		}
 
 		return implode("\n", $result);
+	}
+
+	private function _formatPosition(RoverPosition $position) {
+		return sprintf('%d %d %s', $position->getCoordinates()->getX(), $position->getCoordinates()->getY(), $position->getDirection());
 	}
 
 }

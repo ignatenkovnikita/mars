@@ -37,7 +37,8 @@ class RoverPosition  {
 		return $this->_coordinates;
 	}
 
-	private function _allDirections($index = null) {
+
+	private function _getDirection($index = null) {
 		$allDirections = array(
 			0 => self::DIRECTION_NORTH,
 			1 => self::DIRECTION_EAST,
@@ -53,48 +54,67 @@ class RoverPosition  {
 	}
 
 	private function _getCurrentDirectionIndex() {
-		return array_search($this->_direction, $this->_allDirections());
+		return array_search($this->_direction, $this->_getDirection());
 	}
 
 	private function _isValidDirection() {
-		return in_array($this->_direction, $this->_allDirections());
+		return in_array($this->_direction, $this->_getDirection());
 	}
 
-	public function processCommand($command) {
+	public function changePosition(RoverPosition $newPosition) {
+		$this->_coordinates = $newPosition->_coordinates;
+		$this->_direction = $newPosition->_direction;
+	}
+
+	public function changeDirection($direction) {
+		$this->_direction = $direction;
+	}
+
+	/**
+	 * @param $command
+	 *
+	 * @return null|RoverPosition
+	 */
+	public function evalCommand($command) {
 		if ($this->_isValidDirection($command)) {
+
+			$newPosition = new RoverPosition(new Coordinate($this->_coordinates->getX(), $this->_coordinates->getY()), $this->getDirection());
+
 			if ($command == CommandSequence::TURN_LEFT || $command == CommandSequence::TURN_RIGHT) {
-				// change direction
-				$currentIndex = $this->_getCurrentDirectionIndex();
+
+				$nextDirectionIndex = $this->_getCurrentDirectionIndex();
 
 				if ($command == CommandSequence::TURN_RIGHT) {
-					if ($currentIndex >= 3) {
-						$currentIndex = 0;
+					if ($nextDirectionIndex >= 3) {
+						$nextDirectionIndex = 0;
 					} else {
-						$currentIndex++;
+						$nextDirectionIndex++;
 					}
-					//++
 				} else {
-					//--
-					if ($currentIndex <= 0) {
-						$currentIndex = 3;
+					if ($nextDirectionIndex <= 0) {
+						$nextDirectionIndex = 3;
 					} else {
-						$currentIndex--;
+						$nextDirectionIndex--;
 					}
 				}
 
-				$this->_direction = $this->_allDirections($currentIndex); ////todo непонятно из кода, возможно сделать getDirectionByIndex метод
+				$newPosition->changeDirection($this->_getDirection($nextDirectionIndex));
 
 			} else if ($command == CommandSequence::MOVE_FORWARD) {
-				if ($this->_direction == self::DIRECTION_EAST) {
-					$this->_coordinates->moveAxis('x', 1);
-				} else if ($this->_direction == self::DIRECTION_WEST) {
-					$this->_coordinates->moveAxis('x', -1);
-				} else if ($this->_direction == self::DIRECTION_SOUTH) {
-					$this->_coordinates->moveAxis('y', -1);
-				} else if ($this->_direction == self::DIRECTION_NORTH) {
-					$this->_coordinates->moveAxis('y', 1);
+				if ($newPosition->getDirection() == self::DIRECTION_EAST) {
+					$newPosition->getCoordinates()->moveAxis('x', 1);
+				} else if ($newPosition->getDirection() == self::DIRECTION_WEST) {
+					$newPosition->getCoordinates()->moveAxis('x', -1);
+				} else if ($newPosition->getDirection() == self::DIRECTION_SOUTH) {
+					$newPosition->getCoordinates()->moveAxis('y', -1);
+				} else if ($newPosition->getDirection() == self::DIRECTION_NORTH) {
+					$newPosition->getCoordinates()->moveAxis('y', 1);
 				}
 			}
+
+			return $newPosition;
 		}
+
+		return null;
 	}
 }

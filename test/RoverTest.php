@@ -47,4 +47,16 @@ class RoverTest extends PHPUnit_Framework_TestCase
 		$rover = new Rover($position, $commands, $plato);
 		$rover->walk();
 	}
+
+	public function testRoverInvalidWalk2() {
+		$this->setExpectedException('Rover\Exceptions\RoverException');
+		$position = new RoverPosition(new Coordinate(1, 2), RoverPosition::DIRECTION_NORTH);
+		$commands = new CommandSequence('LMLMLMLMMMMMMMMM');
+		$plato = new Plato(new Coordinate(5, 5));
+
+		$rover = new Rover($position, $commands, $plato);
+		$rover->walk();
+
+
+	}
 }

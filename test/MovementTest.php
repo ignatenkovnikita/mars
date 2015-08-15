@@ -8,51 +8,56 @@ class MovementTest extends PHPUnit_Framework_TestCase
 {
 
 	public function testTurns() {
-		$d = new RoverPosition(new Coordinate(1, 2), 'N');
-		$d->processCommand('L');
-		$d->processCommand('L');
+		$initStates = array(
+			RoverPosition::DIRECTION_NORTH,
+			RoverPosition::DIRECTION_WEST,
+			RoverPosition::DIRECTION_SOUTH,
+			RoverPosition::DIRECTION_EAST,
+		);
 
-		$this->assertEquals($d->getDirection(), RoverPosition::DIRECTION_SOUTH);
+		$resultStatesLeft = array(
+			RoverPosition::DIRECTION_WEST,
+			RoverPosition::DIRECTION_SOUTH,
+			RoverPosition::DIRECTION_EAST,
+			RoverPosition::DIRECTION_NORTH,
+		);
 
+		$resultStatesRight = array(
+			RoverPosition::DIRECTION_EAST,
+			RoverPosition::DIRECTION_NORTH,
+			RoverPosition::DIRECTION_WEST,
+			RoverPosition::DIRECTION_SOUTH,
+		);
 
-		$d = new RoverPosition(new Coordinate(1, 2), 'S');
-		$d->processCommand('L');
-		$d->processCommand('L');
-		$d->processCommand('L');
-		$d->processCommand('L');
-		$this->assertEquals($d->getDirection(), RoverPosition::DIRECTION_SOUTH);
+		foreach ($initStates as $i => $state) {
+			$d = new RoverPosition(new Coordinate(1, 2), $state);
+			$newPosition = $d->evalCommand('L');
+			$this->assertEquals($newPosition->getDirection(), $resultStatesLeft[$i]);
+		}
 
-
-		$d = new RoverPosition(new Coordinate(1, 2), 'W');
-		$d->processCommand('R');
-		$d->processCommand('R');
-		$d->processCommand('L');
-		$this->assertEquals($d->getDirection(), RoverPosition::DIRECTION_NORTH);
-
-
-		$d = new RoverPosition(new Coordinate(1, 2), 'E');
-		$d->processCommand('R');
-		$d->processCommand('R');
-		$d->processCommand('R');
-		$this->assertEquals($d->getDirection(), RoverPosition::DIRECTION_NORTH);
+		foreach ($initStates as $i => $state) {
+			$d = new RoverPosition(new Coordinate(1, 2), $state);
+			$newPosition = $d->evalCommand('R');
+			$this->assertEquals($newPosition->getDirection(), $resultStatesRight[$i]);
+		}
 	}
 
 	public function testMovement() {
 		$d = new RoverPosition(new Coordinate(1, 2), 'E');
-		$d->processCommand('M');
-		$this->assertTrue($d->getCoordinates()->getX() == 2 && $d->getCoordinates()->getY() == 2);
+		$newPosition = $d->evalCommand('M');
+		$this->assertTrue($newPosition->getCoordinates()->getX() == 2 && $newPosition->getCoordinates()->getY() == 2);
 
 		$d = new RoverPosition(new Coordinate(1, 2), 'W');
-		$d->processCommand('M');
-		$this->assertTrue($d->getCoordinates()->getX() == 0 && $d->getCoordinates()->getY() == 2);
+		$newPosition = $d->evalCommand('M');
+		$this->assertTrue($newPosition->getCoordinates()->getX() == 0 && $newPosition->getCoordinates()->getY() == 2);
 
 		$d = new RoverPosition(new Coordinate(1, 2), 'S');
-		$d->processCommand('M');
-		$this->assertTrue($d->getCoordinates()->getX() == 1 && $d->getCoordinates()->getY() == 1);
+		$newPosition = $d->evalCommand('M');
+		$this->assertTrue($newPosition->getCoordinates()->getX() == 1 && $newPosition->getCoordinates()->getY() == 1);
 
 		$d = new RoverPosition(new Coordinate(1, 2), 'N');
-		$d->processCommand('M');
-		$this->assertTrue($d->getCoordinates()->getX() == 1 && $d->getCoordinates()->getY() == 3);
+		$newPosition = $d->evalCommand('M');
+		$this->assertTrue($newPosition->getCoordinates()->getX() == 1 && $newPosition->getCoordinates()->getY() == 3);
 	}
 
 }
